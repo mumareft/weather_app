@@ -38,20 +38,46 @@
         <table border="1">
             <thead>
                 <tr>
-                    <th>Date & Time</th>
+                    <th>Date</th>
                     <th>Temperature</th>
                     <th>Wind Speed</th>
+                    <th>Rainfall</th>
                 </tr>
             </thead>
             <!-- v-for -->
             <tbody>
-                <tr v-for="day in forecast.slice(0, 3)":key="day.dt">
-                    <td>{{ day.dt_txt }}</td>
-                    <td>{{ day.main.temp }}°C</td>
-                    <td>{{ day.wind.speed }} m/s</td>
+                <tr v-for="day in forecast":key="day.date">
+                    <td>{{ day.date }}</td>
+                    <td>{{ day.temperature }}°C</td>
+                    <td>{{ day.windSpeed }} m/s</td>
+                    <td>{{ day.rainfall }} nm</td>
                 </tr>
             </tbody>
         </table>
+
+        <h2>Packing Recommendations</h2>
+        <p v-if="forecast.length > 0 && rainExpected">
+            Bring an umbrella! Rain is expected.
+        </p>
+        <p v-else-if="forecast.length > 0">
+            No umbrella needed.
+        </p>
+
+        <div v-if="forecast.length > 0">
+
+            <p v-if="weatherCategory === 'Cold'">
+                Cold: Pack a warm coat, jumper and gloves.
+            </p>
+
+            <p v-else-if="weatherCategory === 'Mild'">
+                Mild: Pack a light jacket and comfortable clothes.
+            </p>
+
+            <p v-else>
+                Hot: Pack shorts, T-shirts and sunscreen.
+            </p>
+
+        </div>
 
     </div>
     <script src="app.js"></script>
