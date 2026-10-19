@@ -29,10 +29,29 @@
         <button v-on:click="checkWeather">
             Check Weather!
         </button>
-        <!-- <p v-if="message">
+        <p v-if="message">
             {{ message }}
-        </p> -->
-        <script src="app.js"></script>
+        </p>
+
+        <h2>3-Day Forecast</h2>
+
+        <table border="1">
+            <thead>
+                <tr>
+                    <th>Day</th>
+                    <th>Temperature</th>
+                </tr>
+            </thead>
+            <!-- v-for -->
+            <tbody>
+                <tr v-for="day in forecast":key="day.day">
+                    <td>{{ day.day }}</td>
+                    <td>{{ day.temperature }}°C</td>
+                </tr>
+            </tbody>
+        </table>
+
     </div>
+    <script src="app.js"></script>
 </body>
 </html>
