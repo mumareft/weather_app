@@ -1,0 +1,38 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Travel Weather Planner</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+</head>
+
+<body>
+    <div id="app">
+        <h1>Travel Weather Planner</h1>
+
+        <p>Find out what to pack for your trip!</p>
+
+        <label for="city">Enter a city: </label>
+        <!-- v-model -->
+        <input
+            type="text"
+            id="city"
+            v-model="city"
+            placeholder="e.g. Dublin"
+        >
+
+        <!-- moustache syntax {{}} -->
+        <p>You entered: {{ city }}</p>  
+
+        <!-- v-on -->
+        <button v-on:click="checkWeather">
+            Check Weather!
+        </button>
+        <!-- <p v-if="message">
+            {{ message }}
+        </p> -->
+        <script src="app.js"></script>
+    </div>
+</body>
+</html>
