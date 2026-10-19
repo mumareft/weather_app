@@ -4,20 +4,34 @@ const app = Vue.createApp({
         return {
             city: "",
             message: "",
+            forecast: []
         };
     },
     methods: {
         async checkWeather() {
 
-            const response = await fetch("/api/weather?city="+encodeURIComponent(this.city));
-            // alert("Checking weather for "+this.city);
-            const data = await response.json();
+            if (this.city.trim() === "") {
+                this.message = "Please enter a city";
+                return;
+            }
 
-            console.log(data);
+            try {
+                const response = await fetch("/api/weather?city="+encodeURIComponent(this.city));
+                
+                if (!response.ok) {
+                    throw new Error("Failed to fetch weather data");
+                }
 
-            this.message = "Weather information for " + data.city;
+                const data = await response.json();
 
-            this.forecast = data.forecast;
+                this.message = "Weather information for " + data.city;
+
+                this.forecast = data.forecast;
+            } catch (error) {
+                console.error("Error fetching weather data:", error);
+                this.message = "Error fetching weather data.";
+                this.forecast = [];
+            }
         }
     }
 });

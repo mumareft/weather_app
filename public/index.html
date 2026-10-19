@@ -38,15 +38,17 @@
         <table border="1">
             <thead>
                 <tr>
-                    <th>Day</th>
+                    <th>Date & Time</th>
                     <th>Temperature</th>
+                    <th>Wind Speed</th>
                 </tr>
             </thead>
             <!-- v-for -->
             <tbody>
-                <tr v-for="day in forecast":key="day.day">
-                    <td>{{ day.day }}</td>
-                    <td>{{ day.temperature }}°C</td>
+                <tr v-for="day in forecast.slice(0, 3)":key="day.dt">
+                    <td>{{ day.dt_txt }}</td>
+                    <td>{{ day.main.temp }}°C</td>
+                    <td>{{ day.wind.speed }} m/s</td>
                 </tr>
             </tbody>
         </table>
