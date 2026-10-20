@@ -1,0 +1,317 @@
+/* Reset some default browser spacing */
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: Arial, Helvetica, sans-serif;
+    background: linear-gradient(135deg, #dbeafe, #f0f9ff);
+    color: #1f2937;
+    padding: 40px 20px;
+}
+
+/* Main Vue app container */
+#app {
+    max-width: 850px;
+    margin: 0 auto;
+    background-color: white;
+    padding: 35px;
+    border-radius: 16px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+}
+
+/* Main heading */
+h1 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    font-size: 42px;
+    color: #2563eb;
+}
+
+/* Section headings */
+h2 {
+    margin-top: 35px;
+    margin-bottom: 15px;
+    color: #1e3a8a;
+    font-size: 28px;
+}
+
+/* General text */
+p {
+    font-size: 18px;
+    line-height: 1.6;
+}
+
+/* Labels */
+label {
+    font-weight: bold;
+    font-size: 17px;
+}
+
+/* Text input and select menu */
+input,
+select {
+    padding: 10px 12px;
+    margin: 8px 5px;
+    font-size: 16px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    outline: none;
+}
+
+/* Highlight form fields when clicked */
+input:focus,
+select:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+/* Button */
+button {
+    padding: 11px 18px;
+    border: none;
+    border-radius: 8px;
+    background-color: #2563eb;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s ease,
+                transform 0.2s ease;
+}
+
+button:hover {
+    background-color: #1d4ed8;
+    transform: translateY(-1px);
+}
+
+button:active {
+    transform: translateY(0);
+}
+
+/* Forecast table */
+table {
+    width: 100%;
+    margin-top: 15px;
+    border-collapse: collapse;
+    background-color: white;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+}
+
+th,
+td {
+    padding: 14px;
+    text-align: center;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+th {
+    background-color: #2563eb;
+    color: white;
+    font-size: 17px;
+}
+
+td {
+    font-size: 16px;
+}
+
+tr:nth-child(even) {
+    background-color: #f8fafc;
+}
+
+tr:hover {
+    background-color: #eff6ff;
+}
+
+/* Responsive layout for smaller screens */
+@media (max-width: 600px) {
+    body {
+        padding: 15px;
+    }
+
+    #app {
+        padding: 20px;
+    }
+
+    h1 {
+        font-size: 32px;
+    }
+
+    h2 {
+        font-size: 24px;
+    }
+
+    input,
+    select,
+    button {
+        width: 100%;
+        margin: 5px 0;
+    }
+
+    table {
+        font-size: 14px;
+    }
+
+    th,
+    td {
+        padding: 8px 5px;
+    }
+}
+
+
+/* Header */
+.app-header {
+    text-align: center;
+    margin-bottom: 35px;
+}
+
+.app-header p {
+    color: #64748b;
+}
+
+/* Search section */
+.search-section {
+    background: #f8fafc;
+    padding: 25px;
+    border-radius: 12px;
+    margin-bottom: 30px;
+}
+
+.search-section h2 {
+    margin-top: 0;
+}
+
+/* Form layout */
+.form-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    margin-bottom: 8px;
+}
+
+.form-group input,
+.form-group select {
+    width: 100%;
+    margin: 0;
+}
+
+/* Weather button */
+.weather-button {
+    width: 100%;
+    padding: 14px;
+}
+
+/* Results section */
+.results-section {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+/* Individual weather cards */
+.weather-card {
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+.weather-card h2 {
+    margin-top: 0;
+}
+
+/* Forecast table wrapper */
+.table-container {
+    width: 100%;
+    overflow-x: auto;
+}
+
+/* Packing recommendations */
+.recommendation-box {
+    background: #eff6ff;
+    padding: 18px;
+    border-radius: 10px;
+}
+
+.recommendation-box p {
+    margin: 10px 0;
+}
+
+
+/* Air quality */
+.air-quality-box {
+    padding: 18px;
+    border-radius: 10px;
+    border: 1px solid transparent;
+    transition: background-color 0.3s ease;
+}
+
+/* AQI 1 - Good */
+.aqi-good {
+    background-color: #dcfce7;
+    border-color: #86efac;
+    color: #166534;
+}
+
+/* AQI 2 - Fair */
+.aqi-fair {
+    background-color: #fef9c3;
+    border-color: #fde047;
+    color: #854d0e;
+}
+
+/* AQI 3 - Moderate */
+.aqi-moderate {
+    background-color: #ffedd5;
+    border-color: #fdba74;
+    color: #9a3412;
+}
+
+/* AQI 4 - Poor */
+.aqi-poor {
+    background-color: #fee2e2;
+    border-color: #fca5a5;
+    color: #991b1b;
+}
+
+/* AQI 5 - Very Poor */
+.aqi-very-poor {
+    background-color: #f3e8ff;
+    border-color: #d8b4fe;
+    color: #6b21a8;
+}
+
+
+/* Loading and errors */
+.loading-message {
+    color: #2563eb;
+}
+
+.error-message {
+    color: #dc2626;
+    font-weight: bold;
+}
+
+.info-message {
+    color: #475569;
+}
+
+/* Mobile */
+@media (max-width: 600px) {
+    .search-section,
+    .weather-card {
+        padding: 15px;
+    }
+
+    .app-header h1 {
+        font-size: 30px;
+    }
+}

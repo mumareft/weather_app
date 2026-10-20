@@ -55,52 +55,58 @@ function processForecast(weatherData) {
 
 app.get("/api/weather", async (req, res) =>{
 
-    const city = req.query.city;
+    try{
+        // GET CITY AND COUNTRY FROM QUERY PARAMETERS
+        const city = req.query.city;
+        const country = req.query.country || "";
+        const searchLocation = country ? `${city},${country}` : city;
+        console.log(`Weather requested for: ${city}, ${country}`);
 
-    console.log("Weather requested for:", city);
+        // GET GEO DATA
+        const url = `https://api.openweathermap.org/geo/1.0/direct?q=${encodeURIComponent(searchLocation)}&limit=1&appid=${API_KEY}`;
+        const geoResponse = await fetch(url);
+        if (!geoResponse.ok) {
+            return res.status(502).json({ error: "Unable to contact OpenWeather." });
+        }
+        const geoData = await geoResponse.json();
+        if (!geoData || geoData.length === 0) {
+            return res.status(404).json({ error: "City not found." });
+        }
+        const location = geoData[0];
+        const countryCode = location.country;
+        const lat = location.lat;
+        const lon = location.lon;
+        
+        // GET WEATHER DATA
+        const weatherUrl = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&units=metric&appid=${API_KEY}`;
+        const weatherResponse = await fetch(weatherUrl);
+        if (!weatherResponse.ok) {
+            return res.status(502).json({ error: "Unable to retrieve weather forecast." });
+        }
+        const weatherData = await weatherResponse.json();
 
-    const url = `https://api.openweathermap.org/geo/1.0/direct?q=${encodeURIComponent(city)}&limit=1&appid=${API_KEY}`;
+        // GET AIR DATA
+        const airUrl =
+        `https://api.openweathermap.org/data/2.5/air_pollution?lat=${lat}&lon=${lon}&appid=${API_KEY}`;
+        const airResponse = await fetch(airUrl);
+        if (!airResponse.ok) {
+            return res.status(502).json({ error: "Unable to retrieve air quality data." });
+        }
+        const airData = await airResponse.json();
+        const airQualIndex = airData.list[0].main.aqi;
 
-    const geoResponse = await fetch(url);
-    
-    if (!geoResponse.ok) {
-        return res.status(502).json({ error: "Unable to contact OpenWeather." });
+        // Compute Forecast Data
+        const dailyForecast = processForecast(weatherData);
+
+        res.json({
+            city: location.name,
+            country: countryCode,
+            forecast: dailyForecast,
+            aqi: airQualIndex
+        })
     }
-
-    const geoData = await geoResponse.json();
-    
-    if (!geoData || geoData.length === 0) {
-        return res.status(404).json({ error: "City not found." });
+    catch (error) {
+        console.error("Error fetching weather data:", error);
+        res.status(500).json({ error: "Internal server error." });
     }
-    
-    const location = geoData[0];
-    const lat = location.lat;
-    const lon = location.lon;
-    
-    const weatherUrl = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&units=metric&appid=${API_KEY}`;
-    
-    const weatherResponse = await fetch(weatherUrl);
-    
-    if (!weatherResponse.ok) {
-        return res.status(502).json({ error: "Unable to retrieve weather forecast." });
-    }
-    
-    const weatherData = await weatherResponse.json();
-
-    console.log(weatherData.list[0]);
-
-    const dailyForecast = processForecast(weatherData);
-
-    res.json({
-        city: location.name,
-        forecast: dailyForecast
-    })
-});
-
-app.get("/api/test", (req, res) => {
-    res.json({
-        city: "Dublin",
-        temperature: 15,
-        condition: "Cloudy"
-    });
 });

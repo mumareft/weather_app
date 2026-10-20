@@ -3,83 +3,201 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Travel Weather Planner</title>
+
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
     <div id="app">
-        <h1>Travel Weather Planner</h1>
 
-        <p>Find out what to pack for your trip!</p>
+        <!-- HEADER -->
+        <header class="app-header">
+            <h1>Travel Weather Planner</h1>
+            <p>Find out what to pack for your trip!</p>
+        </header>
 
-        <label for="city">Enter a city: </label>
-        <!-- v-model -->
-        <input
-            type="text"
-            id="city"
-            v-model="city"
-            placeholder="e.g. Dublin"
-        >
+        <!-- SEARCH SECTION -->
+        <section class="search-section">
 
-        <!-- moustache syntax {{}} -->
-        <p>You entered: {{ city }}</p>  
+            <h2>Choose Your Destination</h2>
 
-        <!-- v-on -->
-        <button v-on:click="checkWeather">
-            Check Weather!
-        </button>
-        <p v-if="message">
-            {{ message }}
-        </p>
+            <div class="form-group">
+                <label for="city">Enter a city</label>
 
-        <h2>3-Day Forecast</h2>
+                <!-- v-model -->
+                <input
+                    type="text"
+                    id="city"
+                    v-model="city"
+                    placeholder="e.g. Dublin"
+                >
+            </div>
 
-        <table border="1">
-            <thead>
-                <tr>
-                    <th>Date</th>
-                    <th>Temperature</th>
-                    <th>Wind Speed</th>
-                    <th>Rainfall</th>
-                </tr>
-            </thead>
-            <!-- v-for -->
-            <tbody>
-                <tr v-for="day in forecast":key="day.date">
-                    <td>{{ day.date }}</td>
-                    <td>{{ day.temperature }}°C</td>
-                    <td>{{ day.windSpeed }} m/s</td>
-                    <td>{{ day.rainfall }} nm</td>
-                </tr>
-            </tbody>
-        </table>
+            <div class="form-group">
+                <label for="country">Country (optional)</label>
 
-        <h2>Packing Recommendations</h2>
-        <p v-if="forecast.length > 0 && rainExpected">
-            Bring an umbrella! Rain is expected.
-        </p>
-        <p v-else-if="forecast.length > 0">
-            No umbrella needed.
-        </p>
+                <select id="country" v-model="countryCode">
+                    <option value="">Any country</option>
+                    <option value="AR">Argentina</option>
+                    <option value="AU">Australia</option>
+                    <option value="AT">Austria</option>
+                    <option value="BE">Belgium</option>
+                    <option value="BR">Brazil</option>
+                    <option value="CA">Canada</option>
+                    <option value="CN">China</option>
+                    <option value="DK">Denmark</option>
+                    <option value="FR">France</option>
+                    <option value="DE">Germany</option>
+                    <option value="GR">Greece</option>
+                    <option value="IN">India</option>
+                    <option value="IE">Ireland</option>
+                    <option value="IT">Italy</option>
+                    <option value="JP">Japan</option>
+                    <option value="MX">Mexico</option>
+                    <option value="NL">Netherlands</option>
+                    <option value="NZ">New Zealand</option>
+                    <option value="NO">Norway</option>
+                    <option value="PT">Portugal</option>
+                    <option value="ZA">South Africa</option>
+                    <option value="ES">Spain</option>
+                    <option value="SE">Sweden</option>
+                    <option value="CH">Switzerland</option>
+                    <option value="TR">Turkey</option>
+                    <option value="AE">United Arab Emirates</option>
+                    <option value="GB">United Kingdom</option>
+                    <option value="US">United States</option>
+                </select>
+            </div>
 
-        <div v-if="forecast.length > 0">
+            <!-- v-on -->
+            <button
+                class="weather-button"
+                v-on:click="checkWeather"
+                :disabled="loading"
+            >
+                {{ loading ? "Loading..." : "Check Weather" }}
+            </button>
 
-            <p v-if="weatherCategory === 'Cold'">
-                Cold: Pack a warm coat, jumper and gloves.
+            <!-- Loading and error messages -->
+            <p v-if="loading" class="loading-message">
+                Loading weather...
             </p>
 
-            <p v-else-if="weatherCategory === 'Mild'">
-                Mild: Pack a light jacket and comfortable clothes.
+            <p v-if="error" class="error-message">
+                {{ error }}
             </p>
 
-            <p v-else>
-                Hot: Pack shorts, T-shirts and sunscreen.
+            <p v-if="message" class="info-message">
+                {{ message }}
             </p>
+
+        </section>
+
+        <!-- RESULTS -->
+        <div v-if="forecast.length > 0" class="results-section">
+
+            <!-- FORECAST -->
+            <section class="weather-card">
+                <h2>3-Day Forecast</h2>
+
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Temperature</th>
+                                <th>Wind Speed</th>
+                                <th>Rainfall</th>
+                            </tr>
+                        </thead>
+
+                        <!-- v-for -->
+                        <tbody>
+                            <tr v-for="day in forecast" :key="day.date">
+                                <td>{{ day.date }}</td>
+                                <td>{{ day.temperature }}°C</td>
+                                <td>{{ day.windSpeed }} m/s</td>
+                                <td>{{ day.rainfall }} mm</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- PACKING RECOMMENDATIONS -->
+            <section class="weather-card">
+                <h2>Packing Recommendations</h2>
+
+                <div class="recommendation-box">
+
+                    <p v-if="rainExpected">
+                        Bring an umbrella! Rain is expected.
+                    </p>
+
+                    <p v-else>
+                        No umbrella needed.
+                    </p>
+
+                    <p v-if="weatherCategory === 'Cold'">
+                        Cold: Pack a warm coat, jumper and gloves.
+                    </p>
+
+                    <p v-else-if="weatherCategory === 'Mild'">
+                        Mild: Pack a light jacket and comfortable clothes.
+                    </p>
+
+                    <p v-else>
+                        Hot: Pack shorts, T-shirts and sunscreen.
+                    </p>
+
+                </div>
+            </section>
+            
+            <!-- AIR QUALITY -->
+            <section class="weather-card" v-if="aqi !== null">
+                <h2>Air Quality</h2>
+
+                <div
+                    class="air-quality-box"
+                    :class="{
+                        'aqi-good': aqi === 1,
+                        'aqi-fair': aqi === 2,
+                        'aqi-moderate': aqi === 3,
+                        'aqi-poor': aqi === 4,
+                        'aqi-very-poor': aqi === 5
+                    }"
+                >
+                    <p v-if="aqi === 1">
+                        Good air quality.
+                    </p>
+
+                    <p v-else-if="aqi === 2">
+                        Fair air quality.
+                    </p>
+
+                    <p v-else-if="aqi === 3">
+                        Moderate air quality.
+                    </p>
+
+                    <p v-else-if="aqi === 4">
+                        Poor air quality. Limit outdoor activities.
+                    </p>
+
+                    <p v-else>
+                        Very poor air quality. Avoid prolonged outdoor activities.
+                    </p>
+                </div>
+            </section>
+
 
         </div>
 
     </div>
+
     <script src="app.js"></script>
 </body>
 </html>
