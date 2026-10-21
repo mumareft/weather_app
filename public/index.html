@@ -190,6 +190,25 @@
                     <p v-else>
                         Very poor air quality. Avoid prolonged outdoor activities.
                     </p>
+
+                    <div v-if="badPollutants.length > 0" class="pollutant-alert" role="status">
+                        <h3>Elevated pollutant levels</h3>
+                        <ul>
+                            <li v-for="pollutant in badPollutants" :key="pollutant.key">
+                                <strong>{{ pollutant.name }} — {{ pollutant.category }}</strong>
+                                <span>
+                                    {{ pollutant.value }} {{ pollutant.unit }};
+                                    {{ pollutant.aboveGoodLimit }} {{ pollutant.unit }} above the
+                                    Good limit of {{ pollutant.goodLimit }} {{ pollutant.unit }}.
+                                </span>
+                                <span>Potential health risk: {{ pollutant.risk }}</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <p v-else class="pollutant-clear">
+                        No measured pollutant exceeds the Good-category limit.
+                    </p>
                 </div>
             </section>
 

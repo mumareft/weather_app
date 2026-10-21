@@ -73,15 +73,58 @@ const app = Vue.createApp({
             return "Hot"
         },
         badPollutants() {
-            if (this.aqi > 1){
-                const pollutants = [];
-                for (const [key, value] of Object.entries(this.limits)) {
-                    if (this.pollutants[key] > value[0]) {
-                        pollutants.push(key);
-                    }
+            const details = {
+                so2: {
+                    name: "Sulphur dioxide (SO₂)",
+                    unit: "µg/m³",
+                    risk: "May irritate the airways and worsen asthma symptoms, especially in sensitive people."
+                },
+                no2: {
+                    name: "Nitrogen dioxide (NO₂)",
+                    unit: "µg/m³",
+                    risk: "May irritate the airways and aggravate asthma or other respiratory conditions."
+                },
+                pm10: {
+                    name: "Particulate matter (PM₁₀)",
+                    unit: "µg/m³",
+                    risk: "Can irritate the lungs and worsen asthma or other breathing conditions."
+                },
+                pm2_5: {
+                    name: "Fine particulate matter (PM₂.₅)",
+                    unit: "µg/m³",
+                    risk: "Fine particles can reach deep into the lungs and may affect respiratory and cardiovascular health."
+                },
+                o3: {
+                    name: "Ozone (O₃)",
+                    unit: "µg/m³",
+                    risk: "Can irritate the lungs, cause coughing, and worsen asthma."
+                },
+                co: {
+                    name: "Carbon monoxide (CO)",
+                    unit: "µg/m³",
+                    risk: "At high levels, can reduce oxygen delivery and cause symptoms such as headache or dizziness."
                 }
-                return pollutants;
-            }
+            };
+            const categories = ["Good", "Fair", "Moderate", "Poor", "Very Poor"];
+
+            return Object.entries(this.limits).reduce((elevated, [key, thresholds]) => {
+                const value = this.pollutants[key];
+                if (typeof value !== "number" || value <= thresholds[0]) {
+                    return elevated;
+                }
+
+                const categoryIndex = thresholds.findIndex(threshold => value <= threshold);
+                const category = categories[categoryIndex === -1 ? categories.length - 1 : categoryIndex];
+                elevated.push({
+                    key,
+                    ...details[key],
+                    value: Number(value.toFixed(1)),
+                    category,
+                    goodLimit: thresholds[0],
+                    aboveGoodLimit: Number((value - thresholds[0]).toFixed(1))
+                });
+                return elevated;
+            }, []);
         }
     }
 });

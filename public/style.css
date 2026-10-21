@@ -242,6 +242,47 @@ tbody tr:hover {
     margin: 0;
 }
 
+.air-quality-box > p + .pollutant-alert,
+.air-quality-box > p + .pollutant-clear {
+    margin-top: 16px;
+}
+
+.pollutant-alert {
+    padding-top: 14px;
+    border-top: 1px solid currentColor;
+}
+
+.pollutant-alert h3 {
+    margin: 0 0 10px;
+    font-size: 1rem;
+}
+
+.pollutant-alert ul {
+    margin: 0;
+    padding-left: 20px;
+}
+
+.pollutant-alert li {
+    padding: 0 0 12px 2px;
+    line-height: 1.5;
+}
+
+.pollutant-alert li:last-child {
+    padding-bottom: 0;
+}
+
+.pollutant-alert li span {
+    display: block;
+}
+
+.pollutant-alert li span + span {
+    margin-top: 3px;
+}
+
+.pollutant-clear {
+    font-size: 0.95rem;
+}
+
 .aqi-good {
     border-color: #b9d8c1;
     background: #edf6ee;
