@@ -102,13 +102,36 @@
 
             <!-- FORECAST -->
             <section class="weather-card">
-                <h2>3-Day Forecast</h2>
+                <div class="forecast-heading">
+                    <h2>3-Day Forecast</h2>
+                    <div class="period-toggle" role="group" aria-label="Forecast time of day">
+                        <button
+                            type="button"
+                            class="period-button"
+                            :class="{ 'period-button-active': selectedPeriod === 'day' }"
+                            :aria-pressed="selectedPeriod === 'day'"
+                            v-on:click="selectedPeriod = 'day'"
+                        >
+                            Day
+                        </button>
+                        <button
+                            type="button"
+                            class="period-button"
+                            :class="{ 'period-button-active': selectedPeriod === 'night' }"
+                            :aria-pressed="selectedPeriod === 'night'"
+                            v-on:click="selectedPeriod = 'night'"
+                        >
+                            Night
+                        </button>
+                    </div>
+                </div>
 
                 <div class="table-container">
                     <table>
                         <thead>
                             <tr>
                                 <th>Date</th>
+                                <th>Conditions</th>
                                 <th>Temperature</th>
                                 <th>Wind Speed</th>
                                 <th>Rainfall</th>
@@ -119,9 +142,19 @@
                         <tbody>
                             <tr v-for="day in forecast" :key="day.date">
                                 <td>{{ day.date }}</td>
-                                <td>{{ day.temperature }}°C</td>
-                                <td>{{ day.windSpeed }} m/s</td>
-                                <td>{{ day.rainfall }} mm</td>
+                                <td class="forecast-condition">
+                                    <img
+                                        v-if="day[selectedPeriod]"
+                                        :src="`https://openweathermap.org/img/wn/${day[selectedPeriod].icon}@2x.png`"
+                                        :alt="day[selectedPeriod].description"
+                                        width="50"
+                                        height="50"
+                                    >
+                                    <span>{{ day[selectedPeriod] ? day[selectedPeriod].description : `No ${selectedPeriod} forecast available` }}</span>
+                                </td>
+                                <td>{{ day[selectedPeriod] ? `${day[selectedPeriod].temperature}°C` : "—" }}</td>
+                                <td>{{ day[selectedPeriod] ? `${day[selectedPeriod].windSpeed} m/s` : "—" }}</td>
+                                <td>{{ day[selectedPeriod] ? `${day[selectedPeriod].rainfall} mm` : "—" }}</td>
                             </tr>
                         </tbody>
                     </table>

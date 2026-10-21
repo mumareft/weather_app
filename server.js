@@ -13,6 +13,30 @@ app.listen(3000, () => {
 function processForecast(weatherData) {
     const readings = weatherData.list;
     const groupedDays = {};
+    const getPeriodForecast = (periodReadings, period) => {
+        if (periodReadings.length === 0) return null;
+
+        const temperatures = periodReadings.map(item => item.main.temp);
+        const averageTemperature = temperatures.reduce((sum, temp) => sum + temp, 0) / temperatures.length;
+        const windSpeeds = periodReadings.map(item => item.wind.speed);
+        const averageWind = windSpeeds.reduce((total, speed) => total + speed, 0) / windSpeeds.length;
+        const totalRainfall = periodReadings.reduce((total, item) => total + (item.rain?.["3h"] || 0), 0);
+        const targetHour = period === "day" ? 12 : 21;
+        const representativeReading = periodReadings.reduce((closest, item) => {
+            const hour = new Date((item.dt + weatherData.city.timezone) * 1000).getUTCHours();
+            return Math.abs(hour - targetHour) < Math.abs(
+                new Date((closest.dt + weatherData.city.timezone) * 1000).getUTCHours() - targetHour
+            ) ? item : closest;
+        });
+
+        return {
+            temperature: Number(averageTemperature.toFixed(1)),
+            windSpeed: Number(averageWind.toFixed(1)),
+            rainfall: Number(totalRainfall.toFixed(1)),
+            description: representativeReading.weather[0].description,
+            icon: representativeReading.weather[0].icon
+        };
+    };
 
     readings.forEach(item => {
         const localTime = new Date( (item.dt + weatherData.city.timezone) * 1000);
@@ -20,7 +44,10 @@ function processForecast(weatherData) {
         if (!groupedDays[date]) {
             groupedDays[date] = [];
         }
-        groupedDays[date].push(item);
+        const period = item.sys?.pod === "d" || item.sys?.pod === "n"
+            ? item.sys.pod
+            : localTime.getUTCHours() >= 6 && localTime.getUTCHours() < 18 ? "d" : "n";
+        groupedDays[date].push({ item, period });
     });
 
     const today = new Date(
@@ -30,23 +57,17 @@ function processForecast(weatherData) {
     const dates = Object.keys(groupedDays).sort().filter(date => date > today).slice(0, 3);
 
     const dailyForecast = dates.map(date => {
-        // Calculate average temperature for the day
         const dayReadings = groupedDays[date];
-        const temperatures = dayReadings.map(item => item.main.temp);
-        const totalTemperatures = temperatures.reduce((sum, temp) => sum + temp, 0);
-        const averageTemperature = totalTemperatures / temperatures.length;
-        // Calculate average wind speed for the day
-        const windSpeeds = dayReadings.map(item => item.wind.speed);
-        const totalWind = windSpeeds.reduce((total, speed) => total + speed, 0);
-        const averageWind = totalWind / windSpeeds.length;
-        // Calculate total rainfall for the day
-        const totalRainfall = dayReadings.reduce((total, item) => total + (item.rain?.["3h"] || 0), 0);
-
         return {
-            date: date,
-            temperature: Number(averageTemperature.toFixed(1)),
-            windSpeed: Number(averageWind.toFixed(1)),
-            rainfall: Number(totalRainfall.toFixed(1))
+            date,
+            day: getPeriodForecast(
+                dayReadings.filter(reading => reading.period === "d").map(reading => reading.item),
+                "day"
+            ),
+            night: getPeriodForecast(
+                dayReadings.filter(reading => reading.period === "n").map(reading => reading.item),
+                "night"
+            )
         };
     });
     return dailyForecast;

@@ -6,6 +6,7 @@ const app = Vue.createApp({
             error: "",
             city: "",
             countryCode: "",
+            selectedPeriod: "day",
             message: "",
             forecast: [],
             aqi: null,
@@ -66,13 +67,18 @@ const app = Vue.createApp({
         }
     },
     computed: {
+        selectedForecast() {
+            return this.forecast
+                .map(day => day[this.selectedPeriod])
+                .filter(periodForecast => periodForecast !== null);
+        },
         rainExpected() {
-            return this.forecast.some(day=>day.rainfall>0);
+            return this.selectedForecast.some(day => day.rainfall > 0);
         },
         averageTemperature() {
-            if (this.forecast.length === 0) return null;
-            const total = this.forecast.reduce((sum, day)=>sum+day.temperature,0);
-            return total/this.forecast.length;
+            if (this.selectedForecast.length === 0) return null;
+            const total = this.selectedForecast.reduce((sum, day) => sum + day.temperature, 0);
+            return total / this.selectedForecast.length;
         },
         weatherCategory() {
             if (this.averageTemperature === null) return "";
