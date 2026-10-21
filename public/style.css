@@ -1,13 +1,13 @@
 :root {
     color-scheme: light;
-    --ink: #253d38;
-    --muted: #687670;
-    --paper: #f3f1e9;
+    --ink: #263b36;
+    --muted: #68746e;
+    --paper: #f7f6f1;
     --surface: #fffefa;
-    --line: #e3e4da;
+    --line: #dcded5;
     --teal: #285c52;
     --teal-dark: #1f493f;
-    --clay: #b66c50;
+    --clay: #a96146;
 }
 
 * {
@@ -17,37 +17,44 @@
 body {
     margin: 0;
     min-height: 100vh;
-    padding: 36px 20px;
+    padding: 0 24px 64px;
     background: var(--paper);
     color: var(--ink);
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    -webkit-font-smoothing: antialiased;
 }
 
 #app {
-    max-width: 960px;
+    max-width: 1080px;
     margin: 0 auto;
-    padding: 38px;
-    background: var(--surface);
-    border: 1px solid #e9e7de;
-    border-radius: 10px;
 }
 
 .app-header {
-    margin-bottom: 30px;
-    padding-bottom: 24px;
+    padding: 54px 0 30px;
     border-bottom: 1px solid var(--line);
 }
 
-.app-header h1 {
-    margin: 0 0 8px;
-    color: var(--teal);
-    font-size: clamp(2rem, 5vw, 2.6rem);
-    font-weight: 650;
-    letter-spacing: -0.04em;
+.app-header .eyebrow {
+    margin: 0 0 12px;
+    color: var(--clay);
+    font-size: 0.76rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
 }
 
-.app-header p {
+.app-header h1 {
     margin: 0;
+    color: var(--ink);
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: clamp(2.5rem, 7vw, 4.25rem);
+    font-weight: 400;
+    letter-spacing: -0.045em;
+    line-height: 1.05;
+}
+
+.app-header > p:last-child {
+    margin: 12px 0 0;
     color: var(--muted);
     font-size: 1rem;
 }
@@ -55,29 +62,27 @@ body {
 h2 {
     margin: 0 0 18px;
     color: var(--ink);
-    font-size: 1.25rem;
-    font-weight: 620;
-    letter-spacing: -0.02em;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 1.65rem;
+    font-weight: 400;
+    letter-spacing: -0.025em;
 }
 
 p {
-    font-size: 1rem;
-    line-height: 1.55;
+    font-size: 0.98rem;
+    line-height: 1.6;
 }
 
 .search-section {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0 18px;
-    margin-bottom: 28px;
-    padding: 24px;
-    background: #f7f6f0;
-    border: 1px solid var(--line);
-    border-radius: 8px;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+    align-items: end;
+    gap: 0 16px;
+    padding: 26px 0 30px;
+    border-bottom: 1px solid var(--line);
 }
 
 .search-section h2,
-.weather-button,
 .loading-message,
 .error-message,
 .info-message {
@@ -85,30 +90,30 @@ p {
 }
 
 .search-section h2 {
-    margin-bottom: 20px;
+    margin-bottom: 16px;
 }
 
 .form-group {
     display: flex;
     flex-direction: column;
     min-width: 0;
-    margin-bottom: 18px;
+    margin: 0;
 }
 
 .form-group label {
     margin-bottom: 7px;
-    color: var(--ink);
-    font-size: 0.9rem;
+    color: var(--muted);
+    font-size: 0.82rem;
     font-weight: 600;
 }
 
 input,
 select {
     width: 100%;
-    min-height: 44px;
+    min-height: 46px;
     padding: 10px 12px;
-    border: 1px solid #cfd5cd;
-    border-radius: 5px;
+    border: 1px solid #c8cec6;
+    border-radius: 3px;
     background: var(--surface);
     color: var(--ink);
     font: inherit;
@@ -123,17 +128,19 @@ button:focus-visible {
 
 .weather-button {
     min-height: 46px;
-    padding: 11px 18px;
-    border: 0;
-    border-radius: 5px;
+    padding: 11px 20px;
+    border: 1px solid var(--teal);
+    border-radius: 3px;
     background: var(--teal);
     color: white;
     font: inherit;
+    font-size: 0.92rem;
     font-weight: 600;
     cursor: pointer;
 }
 
 .weather-button:hover:not(:disabled) {
+    border-color: var(--teal-dark);
     background: var(--teal-dark);
 }
 
@@ -146,7 +153,7 @@ button:focus-visible {
 .error-message,
 .info-message {
     margin: 12px 0 0;
-    font-size: 0.95rem;
+    font-size: 0.92rem;
 }
 
 .loading-message {
@@ -164,16 +171,15 @@ button:focus-visible {
 
 .results-section {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 18px;
+    grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.85fr);
+    gap: 42px 48px;
+    padding-top: 34px;
 }
 
 .weather-card {
     min-width: 0;
-    padding: 22px;
-    border: 1px solid var(--line);
-    border-radius: 8px;
-    background: var(--surface);
+    padding-top: 20px;
+    border-top: 2px solid var(--ink);
 }
 
 .weather-card:first-child {
@@ -188,7 +194,7 @@ button:focus-visible {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 16px;
+    gap: 20px;
 }
 
 .forecast-heading h2 {
@@ -197,28 +203,27 @@ button:focus-visible {
 
 .period-toggle {
     display: inline-flex;
-    gap: 3px;
+    gap: 2px;
     margin-bottom: 16px;
     padding: 3px;
     border: 1px solid var(--line);
-    border-radius: 6px;
-    background: #f4f5ef;
+    border-radius: 3px;
+    background: #efefe9;
 }
 
 .period-button {
-    min-height: 34px;
-    padding: 6px 14px;
+    min-height: 32px;
+    padding: 5px 13px;
     border: 0;
-    border-radius: 4px;
+    border-radius: 2px;
     background: transparent;
     color: var(--muted);
     font: inherit;
-    font-size: 0.9rem;
+    font-size: 0.84rem;
     cursor: pointer;
 }
 
 .period-button:hover:not(.period-button-active) {
-    background: #e9ece5;
     color: var(--ink);
 }
 
@@ -246,16 +251,29 @@ td {
 }
 
 th {
-    background: #f4f5ef;
     color: var(--muted);
-    font-size: 0.78rem;
+    font-size: 0.74rem;
     font-weight: 650;
-    letter-spacing: 0.035em;
+    letter-spacing: 0.07em;
     text-transform: uppercase;
 }
 
+th:first-child,
+td:first-child {
+    padding-left: 0;
+}
+
+th:last-child,
+td:last-child {
+    padding-right: 0;
+}
+
 td {
-    font-size: 0.95rem;
+    font-size: 0.94rem;
+}
+
+tbody tr:last-child td {
+    border-bottom: 0;
 }
 
 .forecast-condition {
@@ -264,9 +282,9 @@ td {
 
 .forecast-condition img {
     display: inline-block;
-    width: 50px;
-    height: 50px;
-    margin-right: 8px;
+    width: 48px;
+    height: 48px;
+    margin-right: 6px;
     vertical-align: middle;
 }
 
@@ -275,28 +293,49 @@ td {
     text-transform: capitalize;
 }
 
-tbody tr:last-child td {
-    border-bottom: 0;
+.packing-intro {
+    margin: -5px 0 16px;
+    color: var(--muted);
+    font-size: 0.88rem;
 }
 
-tbody tr:hover {
-    background: #faf9f5;
+.recommendation-list {
+    border-top: 1px solid var(--line);
 }
 
-.recommendation-box {
-    padding: 10px 16px;
-    border-left: 3px solid var(--clay);
-    background: #f8f4ee;
+.recommendation-item {
+    display: grid;
+    grid-template-columns: 30px minmax(0, 1fr);
+    gap: 10px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--line);
 }
 
-.recommendation-box p {
-    margin: 8px 0;
+.recommendation-number {
+    padding-top: 2px;
+    color: var(--clay);
+    font-size: 0.76rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+}
+
+.recommendation-item h3 {
+    margin: 0 0 4px;
+    color: var(--ink);
+    font-size: 0.96rem;
+    font-weight: 650;
+}
+
+.recommendation-item p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 0.88rem;
 }
 
 .air-quality-box {
-    padding: 14px 16px;
-    border: 1px solid transparent;
-    border-radius: 5px;
+    padding: 13px 15px;
+    border-left: 2px solid currentColor;
+    background: #f0f0e9;
 }
 
 .air-quality-box p {
@@ -305,26 +344,28 @@ tbody tr:hover {
 
 .air-quality-box > p + .pollutant-alert,
 .air-quality-box > p + .pollutant-clear {
-    margin-top: 16px;
+    margin-top: 14px;
 }
 
 .pollutant-alert {
-    padding-top: 14px;
+    padding-top: 13px;
     border-top: 1px solid currentColor;
 }
 
-.pollutant-alert h3 {
-    margin: 0 0 10px;
-    font-size: 1rem;
+.pollutant-alert h3,
+.pollutant-thresholds h3 {
+    margin: 0 0 9px;
+    font-size: 0.94rem;
+    font-weight: 650;
 }
 
 .pollutant-alert ul {
     margin: 0;
-    padding-left: 20px;
+    padding-left: 18px;
 }
 
 .pollutant-alert li {
-    padding: 0 0 12px 2px;
+    padding: 0 0 11px 2px;
     line-height: 1.5;
 }
 
@@ -341,21 +382,18 @@ tbody tr:hover {
 }
 
 .pollutant-clear {
-    font-size: 0.95rem;
+    font-size: 0.9rem;
 }
 
 .pollutant-thresholds {
     margin-top: 14px;
-    padding: 14px 16px;
+    padding: 13px 15px;
     border: 1px solid var(--line);
-    border-radius: 5px;
-    background: #f7f6f0;
+    background: transparent;
 }
 
 .pollutant-thresholds h3 {
-    margin: 0 0 8px;
     color: var(--ink);
-    font-size: 0.95rem;
 }
 
 .pollutant-thresholds ul {
@@ -371,7 +409,7 @@ tbody tr:hover {
     padding: 7px 0;
     border-top: 1px solid var(--line);
     color: var(--ink);
-    font-size: 0.9rem;
+    font-size: 0.88rem;
 }
 
 .pollutant-thresholds li strong {
@@ -379,63 +417,78 @@ tbody tr:hover {
 }
 
 .aqi-good {
-    border-color: #b9d8c1;
-    background: #edf6ee;
+    background: #edf3eb;
     color: #315f3b;
 }
 
 .aqi-fair {
-    border-color: #e5d69c;
-    background: #f9f4dc;
+    background: #f5f1df;
     color: #725b1d;
 }
 
 .aqi-moderate {
-    border-color: #e5c49d;
-    background: #fbf0e3;
+    background: #f7eee2;
     color: #81501f;
 }
 
 .aqi-poor {
-    border-color: #e1b6ac;
-    background: #f9ece9;
+    background: #f6eae6;
     color: #883e32;
 }
 
 .aqi-very-poor {
-    border-color: #cbbbd5;
-    background: #f2edf5;
+    background: #f0ebf2;
     color: #60476d;
 }
 
-@media (max-width: 640px) {
+@media (max-width: 720px) {
     body {
-        padding: 14px;
+        padding: 0 18px 40px;
     }
 
-    #app {
-        padding: 22px 18px;
+    .app-header {
+        padding-top: 38px;
     }
 
     .search-section {
-        grid-template-columns: 1fr;
-        padding: 18px;
+        grid-template-columns: 1fr 1fr;
+        gap: 0 12px;
+    }
+
+    .weather-button {
+        grid-column: 1 / -1;
+        margin-top: 4px;
     }
 
     .results-section {
         grid-template-columns: 1fr;
+        gap: 32px;
     }
 
     .weather-card:first-child {
         grid-column: auto;
     }
 
-    .weather-card {
-        padding: 18px;
+    .forecast-heading {
+        align-items: flex-start;
+    }
+}
+
+@media (max-width: 480px) {
+    body {
+        padding-right: 14px;
+        padding-left: 14px;
+    }
+
+    .search-section {
+        grid-template-columns: 1fr;
+    }
+
+    .form-group + .form-group {
+        margin-top: 14px;
     }
 
     .forecast-heading {
-        align-items: flex-start;
         flex-direction: column;
         gap: 0;
     }
@@ -444,5 +497,15 @@ tbody tr:hover {
     td {
         padding: 11px 9px;
         white-space: nowrap;
+    }
+
+    th:first-child,
+    td:first-child {
+        padding-left: 0;
+    }
+
+    th:last-child,
+    td:last-child {
+        padding-right: 9px;
     }
 }

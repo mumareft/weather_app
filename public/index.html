@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Travel Weather Planner</title>
+    <title>Weather for the Journey | Travel Weather Planner</title>
 
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <link rel="stylesheet" href="style.css">
@@ -16,8 +16,9 @@
 
         <!-- HEADER -->
         <header class="app-header">
-            <h1>Travel Weather Planner</h1>
-            <p>Find out what to pack for your trip!</p>
+            <p class="eyebrow">Destination weather</p>
+            <h1>Weather for the journey.</h1>
+            <p>A clear forecast and practical packing advice for your next trip.</p>
         </header>
 
         <!-- SEARCH SECTION -->
@@ -165,28 +166,21 @@
             <section class="weather-card">
                 <h2>Packing Recommendations</h2>
 
-                <div class="recommendation-box">
-
-                    <p v-if="rainExpected">
-                        Bring an umbrella! Rain is expected.
-                    </p>
-
-                    <p v-else>
-                        No umbrella needed.
-                    </p>
-
-                    <p v-if="weatherCategory === 'Cold'">
-                        Cold: Pack a warm coat, jumper and gloves.
-                    </p>
-
-                    <p v-else-if="weatherCategory === 'Mild'">
-                        Mild: Pack a light jacket and comfortable clothes.
-                    </p>
-
-                    <p v-else>
-                        Hot: Pack shorts, T-shirts and sunscreen.
-                    </p>
-
+                <p class="packing-intro">
+                    Based on the {{ selectedPeriod }} forecast for the next three days.
+                </p>
+                <div class="recommendation-list">
+                    <article
+                        v-for="(recommendation, index) in packingRecommendations"
+                        :key="recommendation.title"
+                        class="recommendation-item"
+                    >
+                        <span class="recommendation-number">{{ String(index + 1).padStart(2, "0") }}</span>
+                        <div>
+                            <h3>{{ recommendation.title }}</h3>
+                            <p>{{ recommendation.detail }}</p>
+                        </div>
+                    </article>
                 </div>
             </section>
             

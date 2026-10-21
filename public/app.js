@@ -72,19 +72,70 @@ const app = Vue.createApp({
                 .map(day => day[this.selectedPeriod])
                 .filter(periodForecast => periodForecast !== null);
         },
-        rainExpected() {
-            return this.selectedForecast.some(day => day.rainfall > 0);
-        },
-        averageTemperature() {
-            if (this.selectedForecast.length === 0) return null;
-            const total = this.selectedForecast.reduce((sum, day) => sum + day.temperature, 0);
-            return total / this.selectedForecast.length;
-        },
-        weatherCategory() {
-            if (this.averageTemperature === null) return "";
-            if (this.averageTemperature < 8) return "Cold";
-            if (this.averageTemperature <= 24) return "Mild";
-            return "Hot"
+        packingRecommendations() {
+            if (this.selectedForecast.length === 0) return [];
+
+            const recommendations = [];
+            const temperatures = this.selectedForecast.map(day => day.temperature);
+            const coldest = Math.min(...temperatures);
+            const warmest = Math.max(...temperatures);
+
+            if (coldest < 8) {
+                recommendations.push({
+                    title: "Bring a warm coat",
+                    detail: `Temperatures may fall to ${coldest}°C. Pack warm layers for the coldest ${this.selectedPeriod === "day" ? "day" : "night"}.`
+                });
+            } else if (coldest < 15) {
+                recommendations.push({
+                    title: "Pack a light jacket",
+                    detail: `Temperatures start around ${coldest}°C, so a comfortable extra layer will help.`
+                });
+            } else if (warmest >= 25) {
+                recommendations.push({
+                    title: "Choose light clothing",
+                    detail: `Temperatures may reach ${warmest}°C. Breathable clothes should be more comfortable.`
+                });
+            } else {
+                recommendations.push({
+                    title: "Pack comfortable layers",
+                    detail: `Forecast temperatures range from ${coldest}°C to ${warmest}°C.`
+                });
+            }
+
+            if (coldest < 15 && warmest >= 25) {
+                recommendations[0].detail += " Include lighter options for the warmer forecast too.";
+            } else if (coldest < 8 && warmest >= 18) {
+                recommendations[0].detail += " Bring a lighter layer for warmer periods.";
+            }
+
+            const rainyDays = this.forecast.filter(day =>
+                day[this.selectedPeriod] && day[this.selectedPeriod].rainfall > 0
+            );
+            if (rainyDays.length > 0) {
+                const totalRainfall = rainyDays.reduce(
+                    (total, day) => total + day[this.selectedPeriod].rainfall,
+                    0
+                );
+                recommendations.push({
+                    title: totalRainfall >= 5 ? "Pack waterproofs" : "Bring an umbrella",
+                    detail: `Rain is forecast on ${rainyDays.map(day =>
+                        new Date(`${day.date}T00:00:00Z`).toLocaleDateString(undefined, {
+                            weekday: "long",
+                            timeZone: "UTC"
+                        })
+                    ).join(", ")} (${totalRainfall.toFixed(1)} mm total).`
+                });
+            }
+
+            const strongestWind = Math.max(...this.selectedForecast.map(day => day.windSpeed));
+            if (strongestWind >= 8) {
+                recommendations.push({
+                    title: "Consider a windproof layer",
+                    detail: `Winds may reach ${strongestWind} m/s during this forecast period.`
+                });
+            }
+
+            return recommendations;
         },
         pollutantThresholds() {
             return Object.entries(this.limits).map(([key, thresholds]) => ({
