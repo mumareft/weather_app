@@ -94,6 +94,7 @@ app.get("/api/weather", async (req, res) =>{
         }
         const airData = await airResponse.json();
         const airQualIndex = airData.list[0].main.aqi;
+        const pollutants = airData.list[0].components;
 
         // Compute Forecast Data
         const dailyForecast = processForecast(weatherData);
@@ -102,7 +103,8 @@ app.get("/api/weather", async (req, res) =>{
             city: location.name,
             country: countryCode,
             forecast: dailyForecast,
-            aqi: airQualIndex
+            aqi: airQualIndex,
+            pollutants: pollutants
         })
     }
     catch (error) {

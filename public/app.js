@@ -8,7 +8,16 @@ const app = Vue.createApp({
             countryCode: "",
             message: "",
             forecast: [],
-            aqi: null
+            aqi: null,
+            pollutants: {},
+            limits: {
+                so2:   [20, 80, 250, 350],
+                no2:   [40, 70, 150, 200],
+                pm10:  [20, 50, 100, 200],
+                pm2_5: [10, 25, 50, 75],
+                o3:    [60, 100, 140, 180],
+                co:    [4400, 9400, 12400, 15400]
+            }
         };
     },
     methods: {
@@ -18,6 +27,7 @@ const app = Vue.createApp({
             this.message = "";
             this.forecast = [];
             this.aqi = null;
+            this.pollutants = {};
             if (this.city.trim() === "") {
                 this.message = "Please enter a city";
                 return;
@@ -36,6 +46,7 @@ const app = Vue.createApp({
                 this.message = `Weather information for ${this.city.length===data.city.length ? data.city : this.city}, ${data.country}`;
                 this.forecast = data.forecast;
                 this.aqi = data.aqi;
+                this.pollutants = data.pollutants;
             }
             catch (error) {
                 this.error = error.message;                
@@ -60,6 +71,17 @@ const app = Vue.createApp({
             if (this.averageTemperature < 8) return "Cold";
             if (this.averageTemperature <= 24) return "Mild";
             return "Hot"
+        },
+        badPollutants() {
+            if (this.aqi > 1){
+                const pollutants = [];
+                for (const [key, value] of Object.entries(this.limits)) {
+                    if (this.pollutants[key] > value[0]) {
+                        pollutants.push(key);
+                    }
+                }
+                return pollutants;
+            }
         }
     }
 });
