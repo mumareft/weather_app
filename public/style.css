@@ -283,6 +283,40 @@ tbody tr:hover {
     font-size: 0.95rem;
 }
 
+.pollutant-thresholds {
+    margin-top: 14px;
+    padding: 14px 16px;
+    border: 1px solid var(--line);
+    border-radius: 5px;
+    background: #f7f6f0;
+}
+
+.pollutant-thresholds h3 {
+    margin: 0 0 8px;
+    color: var(--ink);
+    font-size: 0.95rem;
+}
+
+.pollutant-thresholds ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.pollutant-thresholds li {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 7px 0;
+    border-top: 1px solid var(--line);
+    color: var(--ink);
+    font-size: 0.9rem;
+}
+
+.pollutant-thresholds li strong {
+    white-space: nowrap;
+}
+
 .aqi-good {
     border-color: #b9d8c1;
     background: #edf6ee;

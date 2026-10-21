@@ -197,9 +197,7 @@
                             <li v-for="pollutant in badPollutants" :key="pollutant.key">
                                 <strong>{{ pollutant.name }} — {{ pollutant.category }}</strong>
                                 <span>
-                                    {{ pollutant.value }} {{ pollutant.unit }};
-                                    {{ pollutant.aboveGoodLimit }} {{ pollutant.unit }} above the
-                                    Good limit of {{ pollutant.goodLimit }} {{ pollutant.unit }}.
+                                    {{ pollutant.value }} {{ pollutant.unit }}.
                                 </span>
                                 <span>Potential health risk: {{ pollutant.risk }}</span>
                             </li>
@@ -209,6 +207,16 @@
                     <p v-else class="pollutant-clear">
                         No measured pollutant exceeds the Good-category limit.
                     </p>
+                </div>
+
+                <div class="pollutant-thresholds">
+                    <h3>Good-category thresholds</h3>
+                    <ul>
+                        <li v-for="pollutant in pollutantThresholds" :key="pollutant.key">
+                            <span>{{ pollutant.name }}</span>
+                            <strong>{{ pollutant.goodLimit }} µg/m³</strong>
+                        </li>
+                    </ul>
                 </div>
             </section>
 

@@ -10,6 +10,14 @@ const app = Vue.createApp({
             forecast: [],
             aqi: null,
             pollutants: {},
+            pollutantNames: {
+                so2: "Sulphur dioxide (SO₂)",
+                no2: "Nitrogen dioxide (NO₂)",
+                pm10: "Particulate matter (PM₁₀)",
+                pm2_5: "Fine particulate matter (PM₂.₅)",
+                o3: "Ozone (O₃)",
+                co: "Carbon monoxide (CO)"
+            },
             limits: {
                 so2:   [20, 80, 250, 350],
                 no2:   [40, 70, 150, 200],
@@ -72,35 +80,36 @@ const app = Vue.createApp({
             if (this.averageTemperature <= 24) return "Mild";
             return "Hot"
         },
+        pollutantThresholds() {
+            return Object.entries(this.limits).map(([key, thresholds]) => ({
+                key,
+                name: this.pollutantNames[key],
+                goodLimit: thresholds[0]
+            }));
+        },
         badPollutants() {
             const details = {
                 so2: {
-                    name: "Sulphur dioxide (SO₂)",
                     unit: "µg/m³",
                     risk: "May irritate the airways and worsen asthma symptoms, especially in sensitive people."
                 },
                 no2: {
-                    name: "Nitrogen dioxide (NO₂)",
                     unit: "µg/m³",
                     risk: "May irritate the airways and aggravate asthma or other respiratory conditions."
                 },
                 pm10: {
-                    name: "Particulate matter (PM₁₀)",
                     unit: "µg/m³",
                     risk: "Can irritate the lungs and worsen asthma or other breathing conditions."
                 },
                 pm2_5: {
-                    name: "Fine particulate matter (PM₂.₅)",
                     unit: "µg/m³",
                     risk: "Fine particles can reach deep into the lungs and may affect respiratory and cardiovascular health."
                 },
                 o3: {
-                    name: "Ozone (O₃)",
                     unit: "µg/m³",
                     risk: "Can irritate the lungs, cause coughing, and worsen asthma."
                 },
                 co: {
-                    name: "Carbon monoxide (CO)",
                     unit: "µg/m³",
                     risk: "At high levels, can reduce oxygen delivery and cause symptoms such as headache or dizziness."
                 }
@@ -117,6 +126,7 @@ const app = Vue.createApp({
                 const category = categories[categoryIndex === -1 ? categories.length - 1 : categoryIndex];
                 elevated.push({
                     key,
+                    name: this.pollutantNames[key],
                     ...details[key],
                     value: Number(value.toFixed(1)),
                     category,
