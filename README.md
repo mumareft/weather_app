@@ -9,12 +9,13 @@ A small web app for checking the weather and air quality at a travel destination
 - Switch between daytime and nighttime forecasts.
 - Get packing suggestions based on the selected forecast period, including cold or warm clothing, rain, and strong wind.
 - View the air-quality index, elevated pollutant measurements, potential health risks, and Good-category thresholds.
+- Compare monthly mean temperature, precipitation totals, and mean wind speed across a selected historical year.
 
 ## Requirements
 
 - Node.js 18 or later.
 - An OpenWeather API key with access to Geocoding, 5 Day / 3 Hour Forecast, and Air Pollution APIs.
-- Internet access for OpenWeather requests, Vue 3 (loaded from a CDN), and weather icons.
+- Internet access for OpenWeather requests, Open-Meteo historical weather requests, Vue 3 (loaded from a CDN), and weather icons.
 
 ## Setup
 
@@ -50,7 +51,12 @@ public/
 server.js      Express server and OpenWeather API integration
 ```
 
-The server exposes `GET /api/weather?city=<city>&country=<optional ISO country code>`. The frontend uses this endpoint to retrieve location-specific forecast and air-quality data.
+The server exposes:
+
+- `GET /api/weather?city=<city>&country=<optional ISO country code>` for the forecast and air-quality data.
+- `GET /api/history?city=<city>&countryCode=<optional ISO country code>&year=<year>` for daily historical weather data for the selected year. The archive starts in 1940; current-year data ends five days before today.
+
+The history endpoint uses Open-Meteo's geocoding and historical archive APIs; it does not require an additional API key.
 
 ## Development notes
 

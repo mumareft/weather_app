@@ -247,6 +247,163 @@
                 </div>
             </section>
 
+            <!-- WEATHER TIME MACHINE -->
+            <section class="time-machine-section">
+                <details class="time-machine">
+                    <summary>
+                        <span class="time-machine-copy">
+                            <span class="time-machine-eyebrow">Explore the past</span>
+                            <span class="time-machine-title">Weather Time Machine</span>
+                            <span class="time-machine-hint">Explore a year of weather for this destination.</span>
+                        </span>
+                        <span class="time-machine-action">Choose a year</span>
+                    </summary>
+
+                    <div class="time-machine-content">
+                        <p>Compare monthly climate trends across the selected year.</p>
+
+                        <form class="history-form" @submit.prevent="getHistoricalWeather">
+                            <div class="form-group">
+                                <label for="historyYear">Year</label>
+                                <select id="historyYear" v-model="historyYear" required>
+                                    <option value="">Choose a year</option>
+                                    <option v-for="year in historyYears" :key="year" :value="year">
+                                        {{ year }}
+                                    </option>
+                                </select>
+                            </div>
+
+                            <button class="weather-button" type="submit" :disabled="historyLoading">
+                                {{ historyLoading ? "Loading history..." : "Show History" }}
+                            </button>
+                        </form>
+
+                        <p v-if="historyLoading" class="loading-message" role="status">
+                            Loading historical weather...
+                        </p>
+                        <p v-if="historyError" class="error-message" role="alert">
+                            {{ historyError }}
+                        </p>
+
+                        <section v-if="historyData" class="history-results">
+                            <h3>
+                                {{ historyData.city }}<span v-if="historyData.country">, {{ historyData.country }}</span> —
+                                {{ historyData.year }}
+                            </h3>
+
+                            <div v-if="historicalMonths.length" class="history-visualization">
+                                <div class="chart-heading">
+                                    <h4>Yearly climate graph</h4>
+                                    <div class="period-toggle" role="group" aria-label="Historical weather graph">
+                                        <button
+                                            v-for="metric in [
+                                                { key: 'temperature', label: 'Temperature' },
+                                                { key: 'rainfall', label: 'Precipitation' },
+                                                { key: 'windSpeed', label: 'Wind' }
+                                            ]"
+                                            :key="metric.key"
+                                            type="button"
+                                            class="period-button"
+                                            :class="{ 'period-button-active': historyMetric === metric.key }"
+                                            :aria-pressed="historyMetric === metric.key"
+                                            @click="historyMetric = metric.key"
+                                        >
+                                            {{ metric.label }}
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <p class="chart-unit">{{ historicalChart.label }} ({{ historicalChart.unit }})</p>
+                                <svg
+                                    class="history-chart"
+                                    :width="historicalChart.width"
+                                    :height="historicalChart.height"
+                                    :viewBox="`0 0 ${historicalChart.width} ${historicalChart.height}`"
+                                    role="img"
+                                    :aria-label="`${historicalChart.label} by month in ${historyData.year}`"
+                                >
+                                    <g v-for="tick in historicalChart.ticks" :key="tick.value">
+                                        <line
+                                            :x1="historicalChart.plot.left"
+                                            :x2="historicalChart.x2"
+                                            :y1="tick.y"
+                                            :y2="tick.y"
+                                            class="chart-gridline"
+                                        />
+                                        <text
+                                            :x="historicalChart.plot.left - 10"
+                                            :y="tick.y + 4"
+                                            text-anchor="end"
+                                            class="chart-axis-label"
+                                        >{{ tick.value }}</text>
+                                    </g>
+                                    <g v-for="(segment, index) in historicalChart.segments" :key="index">
+                                        <polygon
+                                            :points="segment.areaPoints"
+                                            :fill="historicalChart.color"
+                                            fill-opacity="0.14"
+                                        />
+                                        <polyline
+                                            :points="segment.linePoints"
+                                            fill="none"
+                                            :stroke="historicalChart.color"
+                                            stroke-width="3"
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                        />
+                                    </g>
+                                    <g v-for="point in historicalChart.points" :key="point.date">
+                                        <circle
+                                            :cx="point.x"
+                                            :cy="point.y"
+                                            r="3.5"
+                                            :fill="historicalChart.color"
+                                        >
+                                            <title>{{ point.date }}: {{ point.value }} {{ historicalChart.unit }}</title>
+                                        </circle>
+                                    </g>
+                                    <text
+                                        v-for="date in historicalChart.dates"
+                                        :key="date.date"
+                                        :x="date.x"
+                                        :y="historicalChart.height - 12"
+                                        text-anchor="middle"
+                                        class="chart-axis-label"
+                                    >{{ date.date }}</text>
+                                </svg>
+                                <p v-if="historicalChart.points.length === 0" class="chart-empty">
+                                    No {{ historicalChart.label.toLowerCase() }} readings are available for this year.
+                                </p>
+
+                                <details class="history-table-details">
+                                    <summary>View monthly values as a table</summary>
+                                    <div class="table-container">
+                                        <table>
+                                            <thead>
+                                                <tr>
+                                                    <th>Month</th>
+                                                    <th>Mean temperature</th>
+                                                    <th>Total precipitation</th>
+                                                    <th>Mean wind speed</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr v-for="month in historicalMonths" :key="month.monthIndex">
+                                                    <td>{{ month.month }}</td>
+                                                    <td>{{ month.temperature === null ? "—" : `${month.temperature.toFixed(1)} °C` }}</td>
+                                                    <td>{{ month.rainfall === null ? "—" : `${month.rainfall.toFixed(1)} mm` }}</td>
+                                                    <td>{{ month.windSpeed === null ? "—" : `${month.windSpeed.toFixed(1)} km/h` }}</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </details>
+                            </div>
+                            <p v-else>No daily weather records were returned for this month.</p>
+                        </section>
+                    </div>
+                </details>
+            </section>
 
         </div>
 

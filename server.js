@@ -5,9 +5,11 @@ app.use(express.static("public"));
 
 const API_KEY = process.env.OPENWEATHER_API_KEY;
 
-app.listen(3000, () => {
-    console.log("Server running on port 3000");
-});
+if (require.main === module) {
+    app.listen(3000, () => {
+        console.log("Server running on port 3000");
+    });
+}
 
 
 function processForecast(weatherData) {
@@ -133,3 +135,82 @@ app.get("/api/weather", async (req, res) =>{
         res.status(500).json({ error: "Internal server error." });
     }
 });
+
+// WEATHER TIME MACHINE
+app.get("/api/history", async (req, res) => {
+
+    try {
+        const { city, countryCode = "", year } = req.query;
+        if (typeof city !== "string" || !city.trim() ||
+            typeof year !== "string" || !/^\d{4}$/.test(year) ||
+            (countryCode && (typeof countryCode !== "string" || !/^[a-z]{2}$/i.test(countryCode)))) {
+            return res.status(400).json({
+                error: "Please provide a city, a valid year, and an optional two-letter country code."
+            });
+        }
+        const selectedYear = Number(year);
+        const now = new Date();
+        const currentYear = now.getFullYear();
+        const latestAvailableDate = new Date(now);
+        latestAvailableDate.setDate(latestAvailableDate.getDate() - 5);
+        if (selectedYear < 1940 || selectedYear > currentYear) {
+            return res.status(400).json({
+                error: `Choose a year from 1940 to ${currentYear}.`
+            });
+        }
+
+        // GET GEO DATA
+        const countryFilter = countryCode
+            ? `&countryCode=${encodeURIComponent(countryCode.toUpperCase())}`
+            : "";
+        const url = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city.trim())}&count=1${countryFilter}`;
+        const geoResponse = await fetch(url);
+        if (!geoResponse.ok) {
+            return res.status(502).json({ error: "Unable to contact the historical weather service." });
+        }
+        const geoData = await geoResponse.json();
+        if (!geoData.results || geoData.results.length === 0) {
+            return res.status(404).json({ error: "City not found." });
+        }
+        const location = geoData.results[0];
+        const latitude = location.latitude;
+        const longitude = location.longitude;
+        if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
+            throw new Error("The geocoding service returned invalid coordinates.");
+        }
+
+        const startDate = `${selectedYear}-01-01`;
+        const endDate = selectedYear === currentYear
+            ? latestAvailableDate.toISOString().slice(0, 10)
+            : `${selectedYear}-12-31`;
+
+        // HISTORICAL WEATHER
+        const historyUrl =
+            `https://archive-api.open-meteo.com/v1/archive?latitude=${latitude}&longitude=${longitude}&start_date=${startDate}&end_date=${endDate}&daily=temperature_2m_mean,precipitation_sum,wind_speed_10m_mean&timezone=auto`;
+        const historyResponse = await fetch(historyUrl);
+        if (!historyResponse.ok) {
+            throw new Error("Unable to retrieve historical weather.");
+        }
+        const historyData = await historyResponse.json();
+        if (!historyData.daily || !Array.isArray(historyData.daily.time)) {
+            throw new Error("The historical weather service returned no daily data.");
+        }
+
+        res.json({
+            city: location.name,
+            country: location.country_code,
+            year: selectedYear,
+            daily: historyData.daily
+        });
+
+    } catch (error) {
+        console.error("Historical weather error:", error);
+
+        res.status(502).json({
+            error: "Failed to retrieve historical weather data."
+        });
+    }
+
+});
+
+module.exports = app;

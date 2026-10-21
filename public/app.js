@@ -1,6 +1,9 @@
 
 const app = Vue.createApp({
     data() {
+        const today = new Date();
+        const currentYear = today.getFullYear();
+
         return {
             loading: false,
             error: "",
@@ -8,7 +11,11 @@ const app = Vue.createApp({
             countryCode: "",
             selectedPeriod: "day",
             message: "",
+
+            // WEATHER FORECAST
             forecast: [],
+
+            // AIR
             aqi: null,
             pollutants: {},
             pollutantNames: {
@@ -26,7 +33,30 @@ const app = Vue.createApp({
                 pm2_5: [10, 25, 50, 75],
                 o3:    [60, 100, 140, 180],
                 co:    [4400, 9400, 12400, 15400]
-            }
+            },
+            // Weather Time Machine
+            historyYear: "",
+            historyYears: Array.from({ length: currentYear - 1940 + 1 }, (_, i) => currentYear - i),
+
+            months: [
+                { name: "January", value: 1 },
+                { name: "February", value: 2 },
+                { name: "March", value: 3 },
+                { name: "April", value: 4 },
+                { name: "May", value: 5 },
+                { name: "June", value: 6 },
+                { name: "July", value: 7 },
+                { name: "August", value: 8 },
+                { name: "September", value: 9 },
+                { name: "October", value: 10 },
+                { name: "November", value: 11 },
+                { name: "December", value: 12 }
+            ],
+
+            historyLoading: false,
+            historyError: "",
+            historyData: null,
+            historyMetric: "temperature"
         };
     },
     methods: {
@@ -64,6 +94,39 @@ const app = Vue.createApp({
             finally {
                 this.loading = false;
             }
+        },
+        async getHistoricalWeather() {
+            this.historyError = "";
+            this.historyData = null;
+
+            if (!this.city.trim()) {
+                this.historyError = "Enter a city above before searching its history.";
+                return;
+            }
+            if (!this.historyYear) {
+                this.historyError = "Choose a year.";
+                return;
+            }
+
+            this.historyLoading = true;
+            try {
+                const params = new URLSearchParams({
+                    city: this.city.trim(),
+                    countryCode: this.countryCode,
+                    year: this.historyYear
+                });
+                const response = await fetch(`/api/history?${params}`);
+                const data = await response.json();
+                if (!response.ok) {
+                    throw new Error(data.error || "Failed to fetch historical weather.");
+                }
+
+                this.historyData = data;
+            } catch (error) {
+                this.historyError = error.message || "Failed to fetch historical weather.";
+            } finally {
+                this.historyLoading = false;
+            }
         }
     },
     computed: {
@@ -71,6 +134,152 @@ const app = Vue.createApp({
             return this.forecast
                 .map(day => day[this.selectedPeriod])
                 .filter(periodForecast => periodForecast !== null);
+        },
+        historicalMonths() {
+            if (!this.historyData?.daily?.time) return [];
+            const monthly = new Map();
+            this.historyData.daily.time.forEach((date, index) => {
+                const monthIndex = Number(date.slice(5, 7)) - 1;
+                if (!monthly.has(monthIndex)) {
+                    monthly.set(monthIndex, {
+                        monthIndex,
+                        temperatureTotal: 0,
+                        temperatureCount: 0,
+                        rainfall: 0,
+                        rainfallCount: 0,
+                        windSpeedTotal: 0,
+                        windSpeedCount: 0
+                    });
+                }
+                const month = monthly.get(monthIndex);
+                const temperature = this.historyData.daily.temperature_2m_mean?.[index];
+                const rainfall = this.historyData.daily.precipitation_sum?.[index];
+                const windSpeed = this.historyData.daily.wind_speed_10m_mean?.[index];
+                if (typeof temperature === "number" && Number.isFinite(temperature)) {
+                    month.temperatureTotal += temperature;
+                    month.temperatureCount += 1;
+                }
+                if (typeof rainfall === "number" && Number.isFinite(rainfall)) {
+                    month.rainfall += rainfall;
+                    month.rainfallCount += 1;
+                }
+                if (typeof windSpeed === "number" && Number.isFinite(windSpeed)) {
+                    month.windSpeedTotal += windSpeed;
+                    month.windSpeedCount += 1;
+                }
+            });
+
+            return [...monthly.values()].map(month => ({
+                monthIndex: month.monthIndex,
+                month: this.months[month.monthIndex].name,
+                temperature: month.temperatureCount
+                    ? month.temperatureTotal / month.temperatureCount
+                    : null,
+                rainfall: month.rainfallCount ? month.rainfall : null,
+                windSpeed: month.windSpeedCount
+                    ? month.windSpeedTotal / month.windSpeedCount
+                    : null
+            }));
+        },
+        historicalChart() {
+            const metrics = {
+                temperature: { label: "Mean temperature", unit: "°C", color: "#a96146" },
+                rainfall: { label: "Precipitation", unit: "mm", color: "#397e9b" },
+                windSpeed: { label: "Mean wind speed", unit: "km/h", color: "#648044" }
+            };
+            const metric = metrics[this.historyMetric];
+            const width = 900;
+            const height = 360;
+            const plot = { left: 64, right: 22, top: 20, bottom: 48 };
+            const plotWidth = width - plot.left - plot.right;
+            const plotHeight = height - plot.top - plot.bottom;
+            const values = this.historicalMonths.map(month => {
+                const value = month[this.historyMetric];
+                return this.historyMetric !== "temperature" && typeof value === "number"
+                    ? Math.max(0, value)
+                    : value;
+            });
+            const validValues = values.filter(value => typeof value === "number" && Number.isFinite(value));
+
+            if (validValues.length === 0) {
+                return { ...metric, width, height, plot, ticks: [], segments: [], points: [], dates: [] };
+            }
+
+            let min = Math.min(...validValues);
+            let max = Math.max(...validValues);
+            if (this.historyMetric !== "temperature") {
+                min = 0;
+                max = max > 0 ? max * 1.08 : 1;
+            } else if (max === min) {
+                const padding = Math.max(1, Math.abs(max) * 0.1);
+                min -= padding;
+                max += padding;
+            } else {
+                const padding = (max - min) * 0.08;
+                min -= padding;
+                max += padding;
+            }
+            const yFor = value => plot.top + ((max - value) / (max - min)) * plotHeight;
+            const xFor = index => plot.left + (this.historicalMonths.length <= 1
+                ? plotWidth / 2
+                : (index / (this.historicalMonths.length - 1)) * plotWidth);
+
+            const ticks = Array.from({ length: 5 }, (_, index) => {
+                const value = max - ((max - min) * index) / 4;
+                return {
+                    value: Number(value.toFixed(1)),
+                    y: yFor(value)
+                };
+            });
+            const segments = [];
+            let segmentPoints = [];
+            const points = [];
+
+            this.historicalMonths.forEach((month, index) => {
+                const value = values[index];
+                if (typeof value !== "number" || !Number.isFinite(value)) {
+                    if (segmentPoints.length) segments.push(segmentPoints);
+                    segmentPoints = [];
+                    return;
+                }
+                const point = {
+                    x: xFor(index),
+                    y: yFor(value),
+                    value: Number(value.toFixed(1)),
+                    date: `${month.month} ${this.historyData.year}`
+                };
+                segmentPoints.push(point);
+                points.push(point);
+            });
+            if (segmentPoints.length) segments.push(segmentPoints);
+            const chartSegments = segments.map(segment => {
+                const linePoints = segment.map(point => `${point.x},${point.y}`).join(" ");
+                const areaPoints = [
+                    `${segment[0].x},${plot.top + plotHeight}`,
+                    ...segment.map(point => `${point.x},${point.y}`),
+                    `${segment[segment.length - 1].x},${plot.top + plotHeight}`
+                ].join(" ");
+                return { linePoints, areaPoints };
+            });
+
+            const dates = this.historicalMonths.map((month, index) => ({
+                date: month.month.slice(0, 3),
+                x: xFor(index)
+            }));
+
+            return {
+                ...metric,
+                width,
+                height,
+                plot,
+                plotWidth,
+                plotHeight,
+                ticks,
+                segments: chartSegments,
+                points,
+                dates,
+                x2: plot.left + plotWidth
+            };
         },
         packingRecommendations() {
             if (this.selectedForecast.length === 0) return [];
