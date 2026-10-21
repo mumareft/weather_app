@@ -285,37 +285,43 @@ const app = Vue.createApp({
             if (this.selectedForecast.length === 0) return [];
 
             const recommendations = [];
-            const temperatures = this.selectedForecast.map(day => day.temperature);
-            const coldest = Math.min(...temperatures);
-            const warmest = Math.max(...temperatures);
+            const temperatureCategories = [
+                {
+                    name: "Cold",
+                    matches: temperature => temperature < 8,
+                    advice: "Pack a warm coat and insulating layers."
+                },
+                {
+                    name: "Mild",
+                    matches: temperature => temperature >= 8 && temperature <= 24,
+                    advice: "Pack a light jacket and comfortable layers."
+                },
+                {
+                    name: "Hot",
+                    matches: temperature => temperature > 24,
+                    advice: "Pack light clothing, and bring sunscreen for time outdoors."
+                }
+            ];
 
-            if (coldest < 8) {
-                recommendations.push({
-                    title: "Bring a warm coat",
-                    detail: `Temperatures may fall to ${coldest}°C. Pack warm layers for the coldest ${this.selectedPeriod === "day" ? "day" : "night"}.`
-                });
-            } else if (coldest < 15) {
-                recommendations.push({
-                    title: "Pack a light jacket",
-                    detail: `Temperatures start around ${coldest}°C, so a comfortable extra layer will help.`
-                });
-            } else if (warmest >= 25) {
-                recommendations.push({
-                    title: "Choose light clothing",
-                    detail: `Temperatures may reach ${warmest}°C. Breathable clothes should be more comfortable.`
-                });
-            } else {
-                recommendations.push({
-                    title: "Pack comfortable layers",
-                    detail: `Forecast temperatures range from ${coldest}°C to ${warmest}°C.`
-                });
-            }
+            temperatureCategories.forEach(category => {
+                const days = this.forecast.filter(day =>
+                    day[this.selectedPeriod] &&
+                    category.matches(day[this.selectedPeriod].temperature)
+                );
+                if (days.length === 0) return;
 
-            if (coldest < 15 && warmest >= 25) {
-                recommendations[0].detail += " Include lighter options for the warmer forecast too.";
-            } else if (coldest < 8 && warmest >= 18) {
-                recommendations[0].detail += " Bring a lighter layer for warmer periods.";
-            }
+                const datesAndTemperatures = days.map(day => {
+                    const weekday = new Date(`${day.date}T00:00:00Z`).toLocaleDateString(undefined, {
+                        weekday: "long",
+                        timeZone: "UTC"
+                    });
+                    return `${weekday} (${day[this.selectedPeriod].temperature}°C)`;
+                });
+                recommendations.push({
+                    title: `Pack for ${category.name} weather`,
+                    detail: `Forecast for ${datesAndTemperatures.join(", ")}. ${category.advice}`
+                });
+            });
 
             const rainyDays = this.forecast.filter(day =>
                 day[this.selectedPeriod] && day[this.selectedPeriod].rainfall > 0
