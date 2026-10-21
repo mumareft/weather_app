@@ -324,11 +324,13 @@ const app = Vue.createApp({
             });
 
             const rainyDays = this.forecast.filter(day =>
-                day[this.selectedPeriod] && day[this.selectedPeriod].rainfall > 0
+                (day.day?.rainfall ?? 0) > 0 || (day.night?.rainfall ?? 0) > 0
             );
             if (rainyDays.length > 0) {
                 const totalRainfall = rainyDays.reduce(
-                    (total, day) => total + day[this.selectedPeriod].rainfall,
+                    (total, day) => total +
+                        (day.day?.rainfall ?? 0) +
+                        (day.night?.rainfall ?? 0),
                     0
                 );
                 recommendations.push({

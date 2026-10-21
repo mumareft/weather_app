@@ -234,7 +234,8 @@
                             <li v-for="pollutant in badPollutants" :key="pollutant.key">
                                 <strong>{{ pollutant.name }} — {{ pollutant.category }}</strong>
                                 <span>
-                                    {{ pollutant.value }} {{ pollutant.unit }}.
+                                    {{ pollutant.value }} {{ pollutant.unit }};
+                                    {{ pollutant.aboveGoodLimit }} {{ pollutant.unit }} above the Good limit.
                                 </span>
                                 <span>Potential health risk: {{ pollutant.risk }}</span>
                             </li>
@@ -409,7 +410,7 @@
                                     </div>
                                 </details>
                             </div>
-                            <p v-else>No daily weather records were returned for this month.</p>
+                            <p v-else>No daily weather records were returned for this year.</p>
                         </section>
                     </div>
                 </details>
