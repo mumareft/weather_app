@@ -315,6 +315,26 @@ button:focus-visible {
     flex: 1;
     min-height: 38px;
     padding: 7px 14px;
+    border: 1px solid transparent;
+    border-radius: 3px;
+    background: transparent;
+    color: var(--muted);
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.chart-heading .period-button:hover:not(.period-button-active) {
+    background: rgba(255, 254, 250, 0.75);
+    color: var(--ink);
+}
+
+.chart-heading .period-button.period-button-active,
+.chart-heading .period-button.period-button-active:hover {
+    border-color: var(--teal);
+    background: var(--teal);
+    color: white;
+    box-shadow: 0 1px 3px rgba(38, 59, 54, 0.2);
 }
 
 .chart-unit {
